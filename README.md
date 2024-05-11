@@ -66,7 +66,7 @@ base_pcrm.fit(oil_prod_train, inj_train, press_train, time_train[:,0],num_cores=
 
 ## To-Do List
 This project is very much WIP (Work In Progress), so future works will be concentrated on:
-- [ ] Fixing issues for fractional flow model
+- [x] Fixing issues for fractional flow model
 - [ ] Creating connectivity parameter visualization of lambda parameter using networkx and plotly
 
 ## License
