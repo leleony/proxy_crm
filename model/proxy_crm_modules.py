@@ -162,7 +162,7 @@ def rand_weights(n_prod: int, n_inj: int, axis: int = 0, seed: int | None = None
 
 
 class proxyCRM:
-    """Capacitance Resistance Model using proxy method and comparison with PINN-Bayesian method.
+    """Capacitance Resistance Model using proxy method.
 
     CRM uses a physics-inspired mass balance approach to explain production for waterfloods. It treats each injector-producer well pair as a system with mass input, output, and pressure related to the mass balance.
     In this case, the method of CRM will be CRM-Producer (CRMP), with the appliance of shut-in mask in case of well shut-in.
@@ -196,13 +196,13 @@ class proxyCRM:
       self.inject_type = inject_type
 
       if type(primary) != bool:
-        msg = '(っ °Д °;)っ To initialize primary production, insert True-False (boolean) type. This is True in default.'
+        msg = '(っ °Д °;)っ To initialize primary production, insert True-False (boolean) type. This is True by default.'
         raise TypeError(msg)
       if type(pressure)!= bool:
-        msg = '(っ °Д °;)っ To initialize pressure, insert True-False (boolean) type. This is False in default.'
+        msg = '(っ °Д °;)っ To initialize pressure, insert True-False (boolean) type. This is False by default.'
         raise TypeError(msg)
       if type(gas_inject) != bool:
-        msg = '(っ °Д °;)っ To initialize gas injection CRM, insert True-False (boolean) type. This is True in default.'
+        msg = '(っ °Д °;)っ To initialize gas injection CRM, insert True-False (boolean) type. This is True by default.'
         raise TypeError(msg)
       
       if primary == True:
@@ -267,9 +267,10 @@ class proxyCRM:
       if num_cores == 1:
         results = [fit_well(x0, self.prod, self.press, self.inj, self.time) for x0 in init_guess]
       else:
-        results = Parallel(n_jobs=num_cores,verbose=10)(delayed(fit_well)(
-          x0, prod, press, inj, time) 
-          for x0, prod, press, inj, time in zip(init_guess, self.prod, press, inj, time))
+        results = Parallel(n_jobs=num_cores,verbose=10)(
+          delayed(fit_well)(x0, prod, press, inj, time) 
+          for x0, prod, press, inj, time in zip(init_guess, self.prod, press, inj, time)
+          )
 
       print([r for r in results])
       opts = [self._split_opts(r["x"]) for r in results]
@@ -372,7 +373,7 @@ class proxyCRM:
                 }
             ).to_excel(f, sheet_name="Primary prod")
 
-    def _get_init_guess(self, random=False) -> [NDArray, NDArray, NDArray, NDArray, NDArray]:
+    def _get_init_guess(self, random=False):
       """Create initial guesses for the CRM model parameters.
 
       :meta private:

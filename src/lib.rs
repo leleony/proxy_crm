@@ -165,23 +165,6 @@ fn proxy_crm(_py: Python, m: &PyModule) -> PyResult<()> {
         q_hat
     }
 
-    fn eq_loop(alpha: ArrayView1<'_, f64>, beta: ArrayView1<'_, f64>, lambda_ip: ArrayView2<'_, f64>, inj: ArrayView2<'_, f64>) -> Array2<f64> {
-        let n_prod: usize = alpha.raw_dim()[0];
-        let n_inj: usize = inj.raw_dim()[1];
-        let n_t: usize = inj.raw_dim()[0];
-
-        let mut f_oil: Array2<f64> = Array2::zeros([n_t, n_prod]);
-
-        for t in 0..n_t {
-            for j in 0..n_prod {
-                for i in 0..n_inj {
-                    f_oil[[t,j]] += 1.0 / (1.0 + alpha[j] * ((lambda_ip[[j,i]] * inj[[t,i]]).powf(beta[j])));
-                }
-            }
-        }
-        f_oil
-    }
-
     // wrapper
     #[pyfn(m)]
     #[pyo3(name = "q_prim")]
@@ -269,19 +252,6 @@ fn proxy_crm(_py: Python, m: &PyModule) -> PyResult<()> {
         let result = objective_add(rate_prim, rate_crm, rate_bhp);
 
         result.into_pyarray(py)
-    }
-
-    #[pyfn(m)]
-    #[pyo3(name = "eq_loop")]
-    fn eq_loop_py<'py>(py: Python<'py>, alpha: PyReadonlyArray1<'_, f64>, beta: PyReadonlyArray1<'_, f64>, lambda_ip: PyReadonlyArray2<'_, f64>, inj: PyReadonlyArray2<'_, f64>) -> &'py PyArray2<f64> {
-        let alpha = alpha.as_array();
-        let beta = beta.as_array();
-        let lambda_ip = lambda_ip.as_array();
-        let inj = inj.as_array();
-
-        let f_o = eq_loop(alpha, beta, lambda_ip, inj);
-
-        f_o.into_pyarray(py)
     }
 
     Ok(())
